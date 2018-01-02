@@ -6,6 +6,7 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_jwt.authentication import BaseJSONWebTokenAuthentication
 
 from ..serializers import AssignmentSerializer, AssignmentSubmissionsSerializer
 from ..models import Assignment
@@ -13,11 +14,12 @@ from ..models import Assignment
 
 class AssignmentView(APIView):
 
-    def get(self, response):
+    def get(self, request):
+        # print(BaseJSONWebTokenAuthentication.authenticate(request))
+        print(request.hue)
         assignments = Assignment.objects.all()
         serializer = AssignmentSerializer(assignments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 class AssignmentDetail(APIView):
     
