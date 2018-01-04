@@ -53,3 +53,10 @@ class SubmissionDetail(APIView):
         submission = self.get_object(id)
         submission.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class UserSubmissions(APIView):
+    
+    def get(self, request, id):
+        submissions = Submission.objects.filter(user_id=id)
+        serializer = SubmissionSerializer(submissions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

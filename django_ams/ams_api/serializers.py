@@ -69,10 +69,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class AssignmentSerializer(serializers.ModelSerializer):
     
-    def create(self, validated_data):
-
-        return Assignment.objects.create(**validated_data)
-
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
         instance.upload = validated_data.get('upload', instance.upload)
@@ -82,15 +78,11 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assignment
-        fields = ('id', 'user_id', 'course', 'title', 'upload', 'due_date', 'created_at', 'last_updated')
+        fields = ('id', 'user_id', 'course_id', 'title', 'upload', 'due_date', 'created_at', 'last_updated')
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
     
-    def create(self, validated_data):
-    
-        return Submission.objects.create(**validated_data)
-
     def update(self, instance, validated_data):
         instance.grade = validated_data.get('grade', instance.grade)
         instance.upload = validated_data.get('upload', instance.upload)
@@ -100,7 +92,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        fields = ('id', 'user_id', 'upload', 'submitted_at', 'last_updated', 'assignment', 'grade', 'feedback')
+        fields = ('id', 'user_id', 'upload', 'submitted_at', 'last_updated', 'assignment_id', 'grade', 'feedback')
 
 class AssignmentSubmissionsSerializer(serializers.Serializer):
     
@@ -112,4 +104,3 @@ class AssignmentSubmissionsSerializer(serializers.Serializer):
     upload = serializers.FileField()
     submitted_at = serializers.DateField()
     last_updated = serializers.DateField()
-

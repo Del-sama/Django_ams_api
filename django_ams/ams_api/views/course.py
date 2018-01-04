@@ -7,12 +7,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from ..serializers import CourseSerializer, CourseAssignmentsSerializer
-from ..models import Course
+from ..serializers import CourseSerializer, CourseAssignmentsSerializer, AssignmentSerializer
+from ..models import Course, Assignment
 
 
 class CourseView(APIView):
-
+    
     def post(self, request):
         course_serializer=CourseSerializer(data=request.data)
         if course_serializer.is_valid():
@@ -62,6 +62,20 @@ class CourseAssignments(APIView):
             return Course.objects.get(id=id)
         except Course.DoesNotExist:
             raise Http404
+
+    def post(self, request, id):
+        serializer = AssignmentSerializer(data=request.data)
+        if serializer.is_valid():
+            Assignment.objects.create(
+                title=serializer.data["title"],
+                upload=serializer.data["upload"],
+                due_date=serializer.data["due_date"],
+                course_id=id,
+                user_id=request.user.id
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, id):
         course = self.get_object(id)

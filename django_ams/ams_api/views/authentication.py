@@ -33,6 +33,7 @@ class RegisterUsers(APIView):
             user.profile.role = profile_serializer.data['role']
             user.profile.faculty = profile_serializer.data['faculty']
             user.profile.department = profile_serializer.data['department']
+            user.save()
 
             formatted_data = {
                 "first name": user_serializer.data['first_name'],
