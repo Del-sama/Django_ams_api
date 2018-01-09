@@ -58,7 +58,7 @@ This application was developed using [Django Rest Framework](http://www.django-r
 | GET           | /courses/:id    | Get a particular course|
 | DELETE        | /courses/:id   | Delete a course|
 | PUT           | /courses/:id   | Update a course |
-| POST           | assignment/:id/submissions/     | Create a submission
+| POST           | assignments/:id/submissions/     | Create a submission
 | GET          | /submissions/ | Get all submissions |
 | GET           | /submissions/:id    | Get a particular submission|
 | DELETE        | /submissions/:id   | Delete a submission|
