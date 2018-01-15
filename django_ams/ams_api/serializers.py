@@ -5,6 +5,12 @@ from .models import Profile, Course, Assignment, Submission
 
 class UserSerializer(serializers.ModelSerializer):
 
+    def validate(self, data):
+        email = data['email']
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError("A User with this email already exists")
+        return data
+
     def create(self, validated_data):
         user = User.objects.create_user(
                 first_name=validated_data['first_name'],

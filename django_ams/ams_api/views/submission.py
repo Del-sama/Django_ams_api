@@ -35,24 +35,38 @@ class SubmissionDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, id):
+        user_id = request.user.id
         submission = self.get_object(id)
         assignment = submission.assignment
-        serializer = AssignmentSerializer(assignment, data=request.data, partial=True)
-        
-        if serializer.is_valid():
-            if assignment.due_date >= datetime.date.today():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response({
-                    "message": "The due date for this assignment has passed"
-                    }, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if user_id == submission.user_id:
+            serializer = SubmissionSerializer(submission, data=request.data, partial=True)
+            
+            if serializer.is_valid():
+                if assignment.due_date >= datetime.date.today():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response({
+                        "message": "The due date for this assignment has passed"
+                        }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(
+                {'message': 'You are not authorized to carry out this operation'},
+                status=status.HTTP_401_UNAUTHORIZED
+                )
 
     def delete(self, request, id):
+        user_id = request.user.id
         submission = self.get_object(id)
-        submission.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if user_id == submission.user_id:
+            submission.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(
+                {'message': 'You are not authorized to carry out this operation'},
+                status=status.HTTP_401_UNAUTHORIZED
+                )
 
 class UserSubmissions(APIView):
     

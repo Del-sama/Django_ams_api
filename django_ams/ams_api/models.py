@@ -67,5 +67,5 @@ class Submission(models.Model):
         on_delete=models.CASCADE,
         related_name='submissions'
     )
-    grade = models.CharField(max_length=100, null=True, blank=True, default="No grade yet")
+    grade = models.CharField(max_length=100, null=True, blank=True, default=0)
     feedback = models.CharField(max_length=255, null=True, blank=True, default="No feedback yet")

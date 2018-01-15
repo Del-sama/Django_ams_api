@@ -35,20 +35,36 @@ class AssignmentDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, id):
+        user_id = request.user.id
         assignment = self.get_object(id)
-        serializer = AssignmentSerializer(assignment, data=request.data, partial=True)
-        
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        if user_id == assignment.user_id:
+            serializer = AssignmentSerializer(assignment, data=request.data, partial=True)
+            
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(
+                {'message': 'You are not authorized to carry out this operation'},
+                status=status.HTTP_401_UNAUTHORIZED
+                )
 
     def delete(self, request, id):
+        user_id = request.user.id
         assignment = self.get_object(id)
-        assignment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if user_id == assignment.user_id:
+            assignment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(
+                {'message': 'You are not authorized to carry out this operation'},
+                status=status.HTTP_401_UNAUTHORIZED
+                )
 
 class AssignmentSubmissions(APIView):
+            
     
     def get_object(self, id):
         try:
@@ -69,11 +85,18 @@ class AssignmentSubmissions(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, id):
+        user_id = request.user.id
         assignment = self.get_object(id)
         submissions = assignment.submissions.all()
 
-        serializer = AssignmentSubmissionsSerializer(submissions, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if user_id == assignment.user_id:
+            serializer = AssignmentSubmissionsSerializer(submissions, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {'message': 'You are not authorized to carry out this operation'},
+                status=status.HTTP_401_UNAUTHORIZED
+                )
 
 class UserAssignments(APIView):
 
