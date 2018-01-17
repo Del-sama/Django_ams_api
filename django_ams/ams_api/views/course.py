@@ -5,7 +5,7 @@ from django.http import Http404
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
 
 from ..serializers import CourseSerializer, CourseAssignmentsSerializer, AssignmentSerializer
@@ -14,7 +14,7 @@ from .helpers import check_logout
 
 
 class CourseView(APIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, ) 
     @check_logout
     def post(self, request):
         course_serializer=CourseSerializer(data=request.data)
@@ -28,9 +28,8 @@ class CourseView(APIView):
         else:
             return Response(course_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @check_logout
+    @check_logout    
     def get(self, request):
-        import pdb; pdb.set_trace()
         courses = Course.objects.all()
         serializer = CourseSerializer(courses, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -39,7 +38,7 @@ class CourseView(APIView):
 class CourseDetail(APIView):
     permission_classes = (IsAuthenticated, )
     @check_logout
-    def get_object(self, id):
+    def get_object(self, request, id):
         try:
             return Course.objects.get(id=id)
         except Course.DoesNotExist:
@@ -47,6 +46,7 @@ class CourseDetail(APIView):
 
     @check_logout
     def get(self, request, id):
+        permission_classes = (IsAdminUser, )
         course = self.get_object(id)
         serializer = CourseSerializer(course)
         print(serializer.data)

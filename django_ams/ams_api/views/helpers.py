@@ -14,6 +14,6 @@ def check_logout(f):
            return Response({
                 "message": "User is logged out"
             }, status=status.HTTP_400_BAD_REQUEST)
-        return f(*args, **kwargs)
+        return f(request, *args, **kwargs)
     return decorated
         
