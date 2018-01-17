@@ -14,6 +14,7 @@ from rest_framework import status
 from rest_framework_jwt.settings import api_settings
 
 from ..serializers import UserSerializer, ProfileSerializer, LoginSerializer
+from ..models import Blacklist
 
 def create_jwt_token(user):
     jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -30,28 +31,36 @@ class RegisterUsers(APIView):
         user_serializer = UserSerializer(data=request.data)
         profile_serializer = ProfileSerializer(data=request.data)
         if user_serializer.is_valid() and profile_serializer.is_valid():
-            user = user_serializer.save()
+            user = User.objects.create_user(
+                first_name=user_serializer.data['first_name'],
+                last_name=user_serializer.data['last_name'],
+                username=user_serializer.data['username'],
+                email=user_serializer.data['email'],
+                password=user_serializer.data['password']
+            )
             user.profile.role = profile_serializer.data['role']
             user.profile.faculty = profile_serializer.data['faculty']
+            user.profile.matric_number = (
+                profile_serializer.data['matric_number'] if 'matric_number' in 
+                profile_serializer.data
+                else None
+            )
             user.profile.department = profile_serializer.data['department']
             user.save()
 
             formatted_data = {
-                "first name": user_serializer.data['first_name'],
-                "last name": user_serializer.data['last_name'],
-                "username": user_serializer.data['username'],
-                "email" : user_serializer.data['email'],
-                "role": profile_serializer.data['role'],
-                "faculty": profile_serializer.data['faculty'],
-                "department": profile_serializer.data['department']
+                "first name": user.first_name,
+                "last name": user.last_name,
+                "username": user.username,
+                "email" : user.email,
+                "role": user.profile.role,
+                "faculty": user.profile.faculty,
+                "department": user.profile.department,
+                "matric_number": user.profile.matric_number
             }
 
             token = create_jwt_token(user)
-            if 'matric_number' in request.data:
-                user.profile.matric_number = request.data['matric_number']
-                formatted_data["matric_number"] = user.profile.matric_number
-            else:
-                pass
+
             return Response(
                 {
                     "data": formatted_data,
@@ -89,9 +98,9 @@ class LoginUsers(APIView):
 
 class LogoutUsers(APIView):
     permission_classes = (IsAuthenticated, )
-    
     def post(self, request):
-        
+        token = request.auth.decode()
+        Blacklist.objects.create(token=token)
         return Response(
             {"message": "User successfully logged out"},
              status=status.HTTP_200_OK)

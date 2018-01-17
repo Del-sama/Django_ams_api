@@ -11,16 +11,6 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("A User with this email already exists")
         return data
 
-    def create(self, validated_data):
-        user = User.objects.create_user(
-                first_name=validated_data['first_name'],
-                last_name=validated_data['last_name'],
-                username=validated_data['username'], 
-                email=validated_data['email'],
-                password=validated_data['password']
-                )
-        return user
-
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name','username', 'email', 'password')
@@ -34,10 +24,6 @@ class LoginSerializer(serializers.Serializer):
 
     
 class CourseSerializer(serializers.ModelSerializer):
-    
-    def create(self, validated_data):
-    
-        return Course.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         
@@ -67,6 +53,15 @@ class ProfileSerializer(serializers.ModelSerializer):
     
     courses = CourseSerializer(many=True, required=False)
     matric_number = serializers.CharField(required=False, allow_blank=True)
+
+    def validate(self, data):
+        role = data['role']
+
+        if role == 'ST' and 'matric_number' not in data:
+            raise serializers.ValidationError("Matric number is required")
+        if role == 'LR' and 'matric_number'in data:
+            raise serializers.ValidationError("Matric number not required")
+        return data
 
     class Meta:
         model = Profile
