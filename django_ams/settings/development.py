@@ -20,24 +20,14 @@ ALLOWED_HOSTS = []
 
 with open("{}/config.json".format(BASE_DIR)) as f:
     config = json.load(f)
-    print(config)
 
-
-if 'test' in sys.argv:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'test.sqlite3'),
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ams_api',
+        'USER': config['USER'],
+        'PASSWORD': config["PASSWORD"],
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'ams_api',
-            'USER': config['USER'],
-            'PASSWORD': config["PASSWORD"],
-            'HOST': '127.0.0.1',
-            'PORT': '5432',
-        }
-    }
+}

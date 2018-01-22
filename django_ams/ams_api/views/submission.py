@@ -11,10 +11,12 @@ from rest_framework import status
 
 from ..serializers import SubmissionSerializer
 from ..models import Submission
+from .helpers import check_logout
 
 
 class SubmissionView(APIView):
 
+    @check_logout
     def get(self, response):
         submissions = Submission.objects.all()
         serializer = SubmissionSerializer(submissions, many=True)
@@ -23,17 +25,20 @@ class SubmissionView(APIView):
 
 class SubmissionDetail(APIView):
     
+    @check_logout
     def get_object(self, id):
         try:
             return Submission.objects.get(id=id)
         except Submission.DoesNotExist:
             raise Http404
 
+    @check_logout
     def get(self, request, id):
         submission = self.get_object(id)
         serializer = SubmissionSerializer(submission)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @check_logout
     def put(self, request, id):
         user_id = request.user.id
         submission = self.get_object(id)
@@ -56,6 +61,7 @@ class SubmissionDetail(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
                 )
 
+    @check_logout
     def delete(self, request, id):
         user_id = request.user.id
         submission = self.get_object(id)
@@ -70,6 +76,7 @@ class SubmissionDetail(APIView):
 
 class UserSubmissions(APIView):
     
+    @check_logout
     def get(self, request, id):
         submissions = Submission.objects.filter(user_id=id)
         serializer = SubmissionSerializer(submissions, many=True)

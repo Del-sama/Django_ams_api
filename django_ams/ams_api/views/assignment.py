@@ -11,11 +11,13 @@ from rest_framework_jwt.authentication import BaseJSONWebTokenAuthentication
 
 from ..serializers import AssignmentSerializer, AssignmentSubmissionsSerializer, SubmissionSerializer
 from ..models import Assignment, Submission
+from .helpers import check_logout
 
 
 class AssignmentView(APIView):
     permission_classes = (IsAuthenticated, )
 
+    @check_logout
     def get(self, request):
         assignments = Assignment.objects.all()
         serializer = AssignmentSerializer(assignments, many=True)
@@ -23,17 +25,20 @@ class AssignmentView(APIView):
 
 class AssignmentDetail(APIView):
     
+    @check_logout
     def get_object(self, id):
         try:
             return Assignment.objects.get(id=id)
         except Assignment.DoesNotExist:
             raise Http404
 
+    @check_logout
     def get(self, request, id):
         assignment = self.get_object(id)
         serializer = AssignmentSerializer(assignment)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @check_logout
     def put(self, request, id):
         user_id = request.user.id
         assignment = self.get_object(id)
@@ -51,6 +56,7 @@ class AssignmentDetail(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
                 )
 
+    @check_logout
     def delete(self, request, id):
         user_id = request.user.id
         assignment = self.get_object(id)
@@ -65,13 +71,14 @@ class AssignmentDetail(APIView):
 
 class AssignmentSubmissions(APIView):
             
-    
+    @check_logout
     def get_object(self, id):
         try:
             return Assignment.objects.get(id=id)
         except Assignment.DoesNotExist:
             raise Http404
 
+    @check_logout
     def post(self, request, id):
         serializer = SubmissionSerializer(data=request.data)
         if serializer.is_valid():
@@ -84,6 +91,7 @@ class AssignmentSubmissions(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @check_logout
     def get(self, request, id):
         user_id = request.user.id
         assignment = self.get_object(id)
@@ -100,6 +108,7 @@ class AssignmentSubmissions(APIView):
 
 class UserAssignments(APIView):
 
+    @check_logout
     def get(self, request, id):
         assignments = Assignment.objects.filter(user_id=id)
         serializer = AssignmentSerializer(assignments, many=True)

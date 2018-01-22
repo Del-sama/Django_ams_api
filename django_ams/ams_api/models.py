@@ -10,10 +10,14 @@ class Course(models.Model):
     course_code = models.CharField(max_length=100, unique=True)
     course_title = models.CharField(max_length=100, unique=True)
     units = models.IntegerField()
+    created_at = models.DateField(auto_now_add=True)
+    last_updated = models.DateField(auto_now=True)
 
 
 class Profile(models.Model):
-    role_choice = (('Lecturer', 'Lecturer'), ('Student', 'Student'))
+    LECTURER = 'LR'
+    STUDENT = 'ST'
+    role_choice = ((LECTURER , 'Lecturer'), (STUDENT, 'Student'))
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=100, choices=role_choice, default='Lecturer')
     faculty = models.CharField(max_length=255)
@@ -37,7 +41,7 @@ class Profile(models.Model):
 
 class Assignment(models.Model):
     title = models.CharField(max_length=255)
-    upload = models.FileField(upload_to='assignments/', null=True, default="No file uploaded")
+    upload = models.FileField(upload_to='assignments/')
     due_date = models.DateField()
     created_at = models.DateField(auto_now_add=True)
     last_updated = models.DateField(auto_now=True)
@@ -55,7 +59,7 @@ class Assignment(models.Model):
 
 class Submission(models.Model):
     upload = models.FileField(upload_to='submissions/')
-    submitted_at = models.DateField(auto_now=True)
+    submitted_at = models.DateField(auto_now_add=True)
     last_updated = models.DateField(auto_now=True)
     assignment = models.ForeignKey(
         'Assignment',
@@ -69,3 +73,7 @@ class Submission(models.Model):
     )
     grade = models.CharField(max_length=100, null=True, blank=True, default=0)
     feedback = models.CharField(max_length=255, null=True, blank=True, default="No feedback yet")
+
+class Blacklist(models.Model):
+    token = models.CharField(null=True, blank=True, max_length=255)
+    
